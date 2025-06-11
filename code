@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 # === Configuration ===
 FOLDER_NAME = "Lottanodes24/7"
 FILE_NAME = "log.txt"
-DELETE_AFTER_SECONDS = 3  # delete after 60 seconds
+DELETE_AFTER_SECONDS = 5  # delete after 60 seconds
 CHECK_INTERVAL = 2        # how often to check (seconds)
 
 # === Helper Functions ===
