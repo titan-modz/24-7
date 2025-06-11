@@ -3,10 +3,10 @@ import time
 from datetime import datetime, timedelta
 
 # === Configuration ===
-FOLDER_NAME = "MyFolder"
+FOLDER_NAME = "Lottanodes24/7"
 FILE_NAME = "log.txt"
-DELETE_AFTER_SECONDS = 60  # delete after 60 seconds
-CHECK_INTERVAL = 5         # how often to check (seconds)
+DELETE_AFTER_SECONDS = 3  # delete after 60 seconds
+CHECK_INTERVAL = 2        # how often to check (seconds)
 
 # === Helper Functions ===
 def create_folder(folder):
