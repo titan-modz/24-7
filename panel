@@ -1,11 +1,12 @@
 #!/bin/bash
-# Made by azimeee
+# Pterodactyl Panel Docker Installer
+# Made by Azim
 
 echo "📦 Installing Pterodactyl Panel with Docker..."
 
 # Step 1: Create directory structure
-mkdir -p pterodactyl/panel
-cd pterodactyl/panel || exit
+mkdir -p ~/pterodactyl/panel
+cd ~/pterodactyl/panel || exit 1
 
 # Step 2: Create docker-compose.yml file
 cat <<EOF > docker-compose.yml
@@ -14,17 +15,17 @@ version: '3.8'
 x-common:
   database:
     &db-environment
-    MYSQL_PASSWORD: &db-password "CHANGE_ME"
-    MYSQL_ROOT_PASSWORD: "CHANGE_ME_TOO"
+    MYSQL_PASSWORD: &db-password "StrongPass123"
+    MYSQL_ROOT_PASSWORD: "RootStrongPass456"
   panel:
     &panel-environment
-    APP_URL: "https://pterodactyl.example.com"
+    APP_URL: "https://pterodactyl.local"
     APP_TIMEZONE: "UTC"
-    APP_SERVICE_AUTHOR: "noreply@example.com"
+    APP_SERVICE_AUTHOR: "admin@example.com"
     TRUSTED_PROXIES: "*"
   mail:
     &mail-environment
-    MAIL_FROM: "noreply@example.com"
+    MAIL_FROM: "admin@example.com"
     MAIL_DRIVER: "smtp"
     MAIL_HOST: "mail"
     MAIL_PORT: "1025"
@@ -38,7 +39,7 @@ services:
     restart: always
     command: --default-authentication-plugin=mysql_native_password
     volumes:
-      - "/srv/pterodactyl/database:/var/lib/mysql"
+      - "./database:/var/lib/mysql"
     environment:
       <<: *db-environment
       MYSQL_DATABASE: "panel"
@@ -54,14 +55,14 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    links:
+    depends_on:
       - database
       - cache
     volumes:
-      - "/srv/pterodactyl/var/:/app/var/"
-      - "/srv/pterodactyl/nginx/:/etc/nginx/http.d/"
-      - "/srv/pterodactyl/certs/:/etc/letsencrypt/"
-      - "/srv/pterodactyl/logs/:/app/storage/logs"
+      - "./var:/app/var"
+      - "./nginx:/etc/nginx/http.d"
+      - "./certs:/etc/letsencrypt"
+      - "./logs:/app/storage/logs"
     environment:
       <<: [*panel-environment, *mail-environment]
       DB_PASSWORD: *db-password
@@ -84,9 +85,11 @@ EOF
 # Step 3: Start Docker containers
 docker-compose up -d
 
-echo "✅ Pterodactyl Panel installation complete by azimeeee
-echo "🌐by azimeeee
-echo "🌐by azimeeee
+echo "✅ Pterodactyl Panel installation complete!"
+echo "🌐 Access your panel at: http://localhost or your-server-ip"
 
-# Step 4: Create an admin user for the Panel
-docker-compose run --rm panel php artisan p:user:make
+# Step 4: Prompt for creating an admin user
+read -p "👤 Do you want to create an admin user now? (y/n): " create_admin
+if [[ "$create_admin" == "y" || "$create_admin" == "Y" ]]; then
+  docker-compose run --rm panel php artisan p:user:make
+fi
