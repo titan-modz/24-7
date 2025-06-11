@@ -5,18 +5,11 @@ import random
 import string
 import time
 
-def display_banner():
-    print(r"""
-
-                                                       
-                              azimeeeee
-    """)
-
 def generate_random_string(length=100):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 def create_edit_delete_file():
-    folder_name = "24"
+    folder_name = "azimeee 24-7"
     os.makedirs(folder_name, exist_ok=True)
 
     while True:
@@ -49,6 +42,3 @@ def create_edit_delete_file():
 if __name__ == "__main__":
     display_banner()
     create_edit_delete_file()
-
-
-
