@@ -1,11 +1,11 @@
 #!/bin/bash
-# Made by azimeeeee
+# Made by Azimeeeee 
 
-echo "📦 Installing Pterodactyl wings with Docker..."
+echo "📦 Installing Pterodactyl Wings with Docker..."
 
 # Step 1: Create directory structure
-mkdir -p pterodactyl/wings
-cd pterodactyl/wings || exit
+mkdir -p ~/pterodactyl/wings
+cd ~/pterodactyl/wings || { echo "❌ Failed to enter directory"; exit 1; }
 
 # Step 2: Create docker-compose.yml file
 cat <<EOF > docker-compose.yml
@@ -14,14 +14,14 @@ version: '3.8'
 services:
   wings:
     image: ghcr.io/pterodactyl/wings:v1.6.1
-    restart: always
+    restart: unless-stopped
     networks:
       - wings0
     ports:
       - "8080:8080"
       - "2022:2022"
-      - "443:443"
     tty: true
+    privileged: true
     environment:
       TZ: "UTC"
       WINGS_UID: 988
@@ -35,24 +35,23 @@ services:
       - /var/log/pterodactyl/:/var/log/pterodactyl/
       - /tmp/pterodactyl/:/tmp/pterodactyl/
       - /etc/ssl/certs:/etc/ssl/certs:ro
-      # Optional: If upgrading from older daemon versions
-      # - /srv/daemon-data/:/srv/daemon-data/
-      # Optional: Required for SSL if using Let's Encrypt
+      # Uncomment below if using Let's Encrypt
       # - /etc/letsencrypt/:/etc/letsencrypt/
 
 networks:
   wings0:
-    name: wings0
     driver: bridge
+    name: wings0
     ipam:
       config:
         - subnet: 172.21.0.0/16
     driver_opts:
       com.docker.network.bridge.name: wings0
-
 EOF
 
-# Step 3: Start Docker containers
-docker-compose up -d
+# Step 3: Start Docker container
+docker compose up -d
 
+echo "✅ Pterodactyl Wings installation complete!"
+echo "🛡️ Wings should now be running on port 8080 (panel will connect here)."
 echo "By Azimeeeeee"
