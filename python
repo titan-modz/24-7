@@ -1,0 +1,73 @@
+import os
+import subprocess
+
+# Define constants
+GIT_REPO = "https://github.com/pterodactyl/panel.git"
+CLONE_DIR = "pterodactyl-panel"
+DOCKER_COMPOSE_YML = """
+version: '3'
+services:
+  panel:
+    image: ghcr.io/pterodactyl/panel:latest
+    container_name: pterodactyl_panel
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./panel:/app
+    environment:
+      - APP_ENV=production
+      - APP_URL=http://localhost
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_DATABASE=panel
+      - DB_USERNAME=pterodactyl
+      - DB_PASSWORD=secret
+
+  mariadb:
+    image: mariadb:10.5
+    container_name: pterodactyl_mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD=root
+      MYSQL_DATABASE=panel
+      MYSQL_USER=pterodactyl
+      MYSQL_PASSWORD=secret
+    volumes:
+      - ./mysql:/var/lib/mysql
+"""
+
+def run(cmd: str):
+    print(f"Running: {cmd}")
+    subprocess.run(cmd, shell=True, check=True)
+
+# Step 1: Install dependencies (user must manually install Docker)
+print("Ensure Docker and Docker Compose are installed.")
+
+# Step 2: Clone repo
+if not os.path.exists(CLONE_DIR):
+    run(f"git clone {GIT_REPO} {CLONE_DIR}")
+
+os.chdir(CLONE_DIR)
+
+# Step 3: Write docker-compose.yml
+with open("docker-compose.yml", "w") as f:
+    f.write(DOCKER_COMPOSE_YML)
+
+# Step 4: Setup environment file
+if not os.path.exists(".env"):
+    run("cp .env.example .env")
+    run("docker run --rm -v $PWD:/app -w /app composer install --no-dev --optimize-autoloader")
+    run("docker-compose run --rm panel php artisan key:generate --force")
+    run("docker-compose run --rm panel php artisan migrate --seed --force")
+
+# Step 5: Start containers
+run("docker-compose up -d")
+
+# Step 6: Create admin user
+print("Now creating the admin user...")
+run("docker-compose exec panel php artisan p:user:make")
+
+print("\n✅ Pterodactyl Panel setup complete.")
+print("Access the panel at: http://localhost")
+print("Made By Azimeee")
