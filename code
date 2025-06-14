@@ -1,0 +1,14 @@
+#!/bin/bash
+# Pterodactyl Panel Docker Installer
+# Made by Azim
+
+echo "📦 Installing Pterodactyl Panel with Docker..."
+  
+apt update && apt install docker-compose -y && \
+git clone https://github.com/YoshiWalsh/docker-pterodactyl-panel && \
+cd docker-pterodactyl-panel && \
+docker-compose up -d && \
+docker exec -it docker-pterodactyl-panel_php-fpm_1 php artisan p:user:make
+print("\n✅ Pterodactyl Panel setup complete.")
+print("Access the panel at: http://localhost")
+print("Made By Azimeee")
