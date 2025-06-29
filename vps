@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Clone the repository
+git clone https://github.com/titan-modz/vps
+
+# Change directory to the cloned repo
+cd vps || { echo "Failed to enter vps directory"; exit 1; }
+
+# Make setup.sh executable
+chmod +x setup.sh
+
+# Run the setup script
+bash setup.sh
