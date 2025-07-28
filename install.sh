@@ -32,7 +32,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-credit_text="${YELLOW}${BOLD}Credit by ${GREEN}${BOLD}Azim !!!${NC}"
+credit_text="${YELLOW}${BOLD}Created by ${GREEN}${BOLD}Azimeeeeee !!!!!${NC}"
 clear
 echo -n ""
 displayed=""
