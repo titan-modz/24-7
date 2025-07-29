@@ -187,20 +187,21 @@ function ptero_menu {
       "${YELLOW}==================================${NC}" \
       "${GREEN}${BOLD}       Pterodactyl Options       ${NC}" \
       "${YELLOW}==================================${NC}" \
-      "${CYAN}1) Install Pterodactyl Panel${NC}" \
+      "${CYAN}1) Install Pterodactyl 1${NC}" \
       "${CYAN}2) Install Daemon (wings)${NC}" \
       "${CYAN}3) Start Panel${NC}" \
       "${CYAN}4) Start Daemon${NC}" \
       "${CYAN}5) Back${NC}" \
+      "${CYAN}6) Install Pterodactyl 2${NC}" \
       "${YELLOW}==================================${NC}" \
       ""
-    echo -ne "${YELLOW}Enter your choice [1-5]: ${NC}"
+    echo -ne "${YELLOW}Enter your choice [1-6]: ${NC}"
     read ptero_choice
     case $ptero_choice in
       1)
-        echo_message "$GREEN" "Installing Pterodactyl Panel..."
+        echo_message "$GREEN" "Installing Pterodactyl 1..."
         bash <(curl -s https://raw.githubusercontent.com/titan-modz/24-7/refs/heads/main/panel)
-        echo_message "$GREEN" "Pterodactyl Panel installation completed!"
+        echo_message "$GREEN" "Pterodactyl 1 installation completed!"
         ;;
       2)
         echo_message "$GREEN" "Installing Daemon (wings)..."
@@ -216,10 +217,16 @@ function ptero_menu {
         cd wings && node .
         ;;
       5) clear; return ;;
+      6)
+        echo_message "$GREEN" "Installing Pterodactyl 2..."
+        bash <(curl -s https://raw.githubusercontent.com/titan-modz/24-7/refs/heads/main/code)
+        echo_message "$GREEN" "Pterodactyl 2 installation completed!"
+        ;;
       *) echo_message "$RED" "Invalid selection. Please try again." ;;
     esac
   done
 }
+
 
 # Function for Skyport Sub-Sub-Menu
 function skyport_menu {
