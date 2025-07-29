@@ -220,7 +220,9 @@ function ptero_menu {
       6)
         echo_message "$GREEN" "Installing Pterodactyl 2..."
         bash <(curl -s https://raw.githubusercontent.com/titan-modz/24-7/refs/heads/main/code)
-        echo_message "$GREEN" "Pterodactyl 2 installation completed!"
+        echo_message "$GREEN" "Running user creation command..."
+        docker exec -it docker-pterodactyl-panel_php-fpm_1 php artisan p:user:make
+        echo_message "$GREEN" "Pterodactyl 2 installation and user creation completed!"
         ;;
       *) echo_message "$RED" "Invalid selection. Please try again." ;;
     esac
