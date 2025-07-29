@@ -192,7 +192,7 @@ function ptero_menu {
       "${CYAN}3) Start Panel${NC}" \
       "${CYAN}4) Start Daemon${NC}" \
       "${CYAN}5) Install Pterodactyl 2${NC}" \
-      "${CYAN}5) Back${NC}" \
+      "${CYAN}6) Back${NC}" \
       "${YELLOW}==================================${NC}" \
       ""
     echo -ne "${YELLOW}Enter your choice [1-6]: ${NC}"
