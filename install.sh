@@ -216,9 +216,7 @@ function ptero_menu {
         echo_message "$GREEN" "Starting Daemon..."
         cd wings && node .
         ;;
-      5) clear; return ;;
-      6)
-        echo_message "$GREEN" "Installing Pterodactyl 2..."
+      5) echo_message "$GREEN" "Installing Pterodactyl 2..."
         bash <(curl -s https://raw.githubusercontent.com/titan-modz/24-7/refs/heads/main/code)
         echo_message "$GREEN" "Running user creation command..."
         docker exec -it docker-pterodactyl-panel_php-fpm_1 php artisan p:user:make
@@ -226,6 +224,8 @@ function ptero_menu {
         ;;
       *) echo_message "$RED" "Invalid selection. Please try again." ;;
     esac
+      6)clear; return ;;
+        
   done
 }
 
