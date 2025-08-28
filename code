@@ -1,17 +1,13 @@
-#!/bin/bash
+mkdir pterodactyl
+ 
+cd pterodactyl
+ 
+mkdir panel
+ 
+cd panel
+ 
+nano docker-compose.yml
 
-# Colors
-GREEN='\033[0;32m'
-NC='\033[0m'
-
-echo -e "${GREEN}Creating directories...${NC}"
-mkdir -p pterodactyl/panel/data/{database,var,nginx,certs,logs}
-
-echo -e "${GREEN}Entering panel directory...${NC}"
-cd pterodactyl/panel
-
-echo -e "${GREEN}Creating docker-compose.yml...${NC}"
-cat <<EOF > docker-compose.yml
 version: '3.8'
 
 x-common:
@@ -25,6 +21,7 @@ x-common:
     APP_TIMEZONE: "UTC"
     APP_SERVICE_AUTHOR: "noreply@example.com"
     TRUSTED_PROXIES: "*"
+    # LE_EMAIL: ""
   mail:
     &mail-environment
     MAIL_FROM: "noreply@example.com"
@@ -82,10 +79,9 @@ networks:
     ipam:
       config:
         - subnet: 172.20.0.0/16
-EOF
 
-echo -e "${GREEN}Starting Docker containers...${NC}"
+mkdir -p ./data/{database,var,nginx,certs,logs}
+
 docker-compose up -d
 
-echo -e "${GREEN}Creating admin user...${NC}"
 docker-compose run --rm panel php artisan p:user:make
