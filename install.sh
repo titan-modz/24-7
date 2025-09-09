@@ -130,10 +130,10 @@ function draco_menu {
     fade_in_menu \
       "" \
       "${YELLOW}==================================${NC}" \
-      "${GREEN}${BOLD}          Draco Options          ${NC}" \
+      "${GREEN}${BOLD}          Teryx Options          ${NC}" \
       "${YELLOW}==================================${NC}" \
-      "${CYAN}1) Install Draco Panel${NC}" \
-      "${CYAN}2) Install Draco Daemon (wings)${NC}" \
+      "${CYAN}1) Install teryx Panel${NC}" \
+      "${CYAN}2) Install Teryx Daemon (wings)${NC}" \
       "${CYAN}3) Start Panel${NC}" \
       "${CYAN}4) Start Daemon${NC}" \
       "${CYAN}5) Back${NC}" \
@@ -143,14 +143,14 @@ function draco_menu {
     read draco_choice
     case $draco_choice in
       1)
-        echo_message "$GREEN" "Installing Draco Panel..."
-        bash <(curl -s https://raw.githubusercontent.com/JishnuTheGamer/Vps/refs/heads/main/draco)
-        echo_message "$GREEN" "Draco Panel installation completed!"
+        echo_message "$GREEN" "Installing Teryx Panel..."
+        bash <(curl -s https://raw.githubusercontent.com/titan-modz/install/refs/heads/main/teryxpanel.sh)
+        echo_message "$GREEN" "Teryx Panel installation completed!"
         prompt_daemon "draco"
         ;;
       2)
-        echo_message "$GREEN" "Installing Draco Daemon (wings)..."
-        bash <(curl -s https://raw.githubusercontent.com/JishnuTheGamer/Vps/refs/heads/main/daemon)
+        echo_message "$GREEN" "Installing Teryx Daemon (wings)..."
+        bash <(curl -s https://raw.githubusercontent.com/titan-modz/install/refs/heads/main/teryxwings.sh)
         echo_message "$GREEN" "Your daemon(wings) is complet install make sure paste the 1 & 2 is your node (daemon)configure code"
         echo -e "${CYAN}1) cd Vortex-Deamon${NC}"
         echo -e "${CYAN}2) paste your configure${NC}"
@@ -296,7 +296,6 @@ function run_24_7 {
   python3 <(curl -s https://raw.githubusercontent.com/titan-modz/24-7/refs/heads/main/24-7)
 }
 
-# Function for Tunnel Creation
 function tunnel_create {
   fade_in_menu \
     "" \
@@ -329,17 +328,39 @@ function tunnel_create {
       read tunnel_choice
       case $tunnel_choice in
         1)
-          # Simulate popup with 5s delay
-          clear
-          echo -e "${YELLOW}=============================${NC}"
-          echo -e "${RED}${BOLD} Wait for creating the link...${NC}"
-          echo -e "${YELLOW}=============================${NC}"
-          sleep 5
-          clear
-          echo_message "$GREEN" "Creating Tunnel..."
-          wget https://github.com/playit-cloud/playit-agent/releases/download/v0.15.26/playit-linux-amd64
-          chmod +x playit-linux-amd64
-          ./playit-linux-amd64
+          # Submenu for Docker / Ubuntu
+          fade_in_menu \
+            "" \
+            "${YELLOW}==================================${NC}" \
+            "${GREEN}${BOLD}     Select Installation Type    ${NC}" \
+            "${YELLOW}==================================${NC}" \
+            "${CYAN}1) Docker${NC}" \
+            "${CYAN}2) Ubuntu/Debian${NC}" \
+            "${CYAN}3) Back${NC}" \
+            "${YELLOW}==================================${NC}" \
+            ""
+          echo -ne "${YELLOW}Enter your choice [1-3]: ${NC}"
+          read install_choice
+          case $install_choice in
+            1)
+              clear
+              echo -e "${YELLOW}=============================${NC}"
+              echo -e "${RED}${BOLD} Wait for creating the link...${NC}"
+              echo -e "${YELLOW}=============================${NC}"
+              sleep 5
+              clear
+              echo_message "$GREEN" "Creating Tunnel with Docker..."
+              wget https://github.com/playit-cloud/playit-agent/releases/download/v0.15.26/playit-linux-amd64
+              chmod +x playit-linux-amd64
+              ./playit-linux-amd64
+              ;;
+            2)
+              echo_message "$GREEN" "Creating Tunnel on Ubuntu/Debian..."
+              bash <(curl -s https://raw.githubusercontent.com/titan-modz/playit/refs/heads/main/playit.sh)
+              ;;
+            3) continue ;; # Back to tunnel menu
+            *) echo_message "$RED" "Invalid selection. Please try again." ;;
+          esac
           ;;
         2)
           echo_message "$GREEN" "Starting Tunnel..."
@@ -353,6 +374,7 @@ function tunnel_create {
     echo_message "$RED" "Tunnel creation canceled."
   fi
 }
+
 
 # Function to prompt for daemon installation after panel install
 function prompt_daemon {
