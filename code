@@ -1,13 +1,22 @@
-mkdir pterodactyl
- 
-cd pterodactyl
- 
-mkdir panel
- 
-cd panel
- 
-nano docker-compose.yml
+#!/bin/bash
 
+# Pterodactyl Panel Docker Installer
+# Author: Azim
+
+set -e
+
+# Update system and install docker-compose
+echo "[INFO] Updating system and installing Docker Compose..."
+apt update && apt install -y docker-compose
+
+# Create base directories
+echo "[INFO] Creating directories..."
+mkdir -p pterodactyl/panel
+cd pterodactyl/panel
+
+# Generate docker-compose.yml
+echo "[INFO] Writing docker-compose.yml..."
+cat > docker-compose.yml <<'EOF'
 version: '3.8'
 
 x-common:
@@ -79,9 +88,16 @@ networks:
     ipam:
       config:
         - subnet: 172.20.0.0/16
+EOF
 
+# Create data directories
+echo "[INFO] Creating data directories..."
 mkdir -p ./data/{database,var,nginx,certs,logs}
 
+# Start services
+echo "[INFO] Starting Docker containers..."
 docker-compose up -d
 
+# Create initial panel user
+echo "[INFO] Running panel user creation..."
 docker-compose run --rm panel php artisan p:user:make
