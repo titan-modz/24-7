@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# CloudPanel installer URL
+CLOUDPANEL_URL="https://installer.cloudpanel.io/ce/v1/install.sh"
+
+# Function to check if running as root
+check_root() {
+  if [ "$(id -u)" -ne 0 ]; then
+    echo "⚠️  Please run this script as root."
+    exit 1
+  fi
+}
+
+# Function to confirm before running installer
+confirm_and_run() {
+  read -rp "⚠️  You're about to install CloudPanel on this server. Proceed? (y/N): " confirm
+  if [[ "${confirm,,}" == "y" ]]; then
+    echo "🚀 Running CloudPanel installer..."
+    bash <(curl -fsSL "$CLOUDPANEL_URL")
+  else
+    echo "❌ Installation aborted."
+    exit 0
+  fi
+}
+
+# Check OS compatibility
+check_os() {
+  if ! grep -qiE "ubuntu|debian" /etc/os-release; then
+    echo "❌ CloudPanel supports only Ubuntu or Debian."
+    exit 1
+  fi
+}
+
+# Main
+main() {
+  check_root
+  check_os
+  confirm_and_run
+}
+
+main
