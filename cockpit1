@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Update package lists
+echo "Updating package lists..."
+apt update -y
+
+# Upgrade packages
+echo "Upgrading packages..."
+apt upgrade -y
+
+# Install Cockpit and required dependencies
+echo "Installing Cockpit..."
+apt install -y cockpit sudo net-tools curl
+
+# Enable and start Cockpit service
+echo "Enabling and starting Cockpit service..."
+systemctl enable --now cockpit.socket || echo "Systemctl not supported in this container, starting cockpit manually..."
+cockpit &
+
+# Expose port 9090 (for Codesandbox, this needs port mapping in dev container)
+echo "Cockpit should now be running on port 9090."
+
+# Print instructions
+echo "You can try accessing Cockpit at http://localhost:9090 if port mapping is set up."
