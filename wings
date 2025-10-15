@@ -1,57 +1,104 @@
 #!/bin/bash
-# Made by Azimeeeee 
+# ===========================================
+# 🐉 Simple Pterodactyl Wings Installer
+# Author: Azim
+# ===========================================
 
-echo "📦 Installing Pterodactyl Wings with Docker..."
+echo "🚀 Installing Pterodactyl Wings (Simplified Setup)..."
 
-# Step 1: Create directory structure
-mkdir -p ~/pterodactyl/wings
-cd ~/pterodactyl/wings || { echo "❌ Failed to enter directory"; exit 1; }
+# === Update & Install Requirements ===
+apt update -y && apt upgrade -y
+apt install -y curl docker.io docker-compose certbot -qq
 
-# Step 2: Create docker-compose.yml file
-cat <<EOF > docker-compose.yml
-version: '3.8'
+# === Create directories ===
+mkdir -p /etc/pterodactyl /var/lib/pterodactyl/volumes
+cd /etc/pterodactyl
 
-services:
-  wings:
-    image: ghcr.io/pterodactyl/wings:v1.6.1
-    restart: unless-stopped
-    networks:
-      - wings0
-    ports:
-      - "8080:8080"
-      - "2022:2022"
-    tty: true
-    privileged: true
-    environment:
-      TZ: "UTC"
-      WINGS_UID: 988
-      WINGS_GID: 988
-      WINGS_USERNAME: pterodactyl
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/containers/:/var/lib/docker/containers/
-      - /etc/pterodactyl/:/etc/pterodactyl/
-      - /var/lib/pterodactyl/:/var/lib/pterodactyl/
-      - /var/log/pterodactyl/:/var/log/pterodactyl/
-      - /tmp/pterodactyl/:/tmp/pterodactyl/
-      - /etc/ssl/certs:/etc/ssl/certs:ro
-      # Uncomment below if using Let's Encrypt
-      # - /etc/letsencrypt/:/etc/letsencrypt/
+# === Download latest Wings binary ===
+echo "⬇️ Downloading latest Wings release..."
+curl -L -o wings https://github.com/pterodactyl/wings/releases/latest/download/wings_linux_amd64
+chmod +x wings
 
-networks:
-  wings0:
-    driver: bridge
-    name: wings0
-    ipam:
-      config:
-        - subnet: 172.21.0.0/16
-    driver_opts:
-      com.docker.network.bridge.name: wings0
+# === Ask for configuration ===
+read -p "🛠️  Do you want to configure Wings now? (y/n): " configure_now
+
+if [[ "$configure_now" =~ ^[Yy]$ ]]; then
+  echo ""
+  echo "⚙️  Enter your Pterodactyl configuration details:"
+  read -p "🌐 Panel URL (e.g., https://panel.example.com): " PANEL_URL
+  read -p "🧩 Node UUID: " NODE_UUID
+  read -p "🔑 Token ID: " TOKEN_ID
+  read -p "🪙 Token: " TOKEN
+
+  read -p "🔒 Enable SSL? (y/n): " ENABLE_SSL
+  if [[ "$ENABLE_SSL" =~ ^[Yy]$ ]]; then
+    read -p "📄 SSL Cert Path: " SSL_CERT
+    read -p "🔑 SSL Key Path: " SSL_KEY
+    SSL_ENABLED="true"
+    API_PORT=443
+  else
+    SSL_ENABLED="false"
+    SSL_CERT=""
+    SSL_KEY=""
+    API_PORT=8080
+  fi
+
+  # === Write configuration file ===
+  echo "📝 Writing /etc/pterodactyl/config.yml..."
+  cat > /etc/pterodactyl/config.yml <<EOF
+debug: false
+uuid: $NODE_UUID
+token_id: $TOKEN_ID
+token: $TOKEN
+api:
+  host: 0.0.0.0
+  port: $API_PORT
+  ssl:
+    enabled: $SSL_ENABLED
+    cert: $SSL_CERT
+    key: $SSL_KEY
+  upload_limit: 100
+system:
+  data: /var/lib/pterodactyl/volumes
+  sftp:
+    bind_port: 2022
+allowed_mounts: []
+remote: '$PANEL_URL'
 EOF
 
-# Step 3: Start Docker container
-docker compose up -d
+else
+  echo "⚙️  Skipping configuration. Edit /etc/pterodactyl/config.yml manually later."
+fi
 
-echo "✅ Pterodactyl Wings installation complete!"
-echo "🛡️ Wings should now be running on port 8080 (panel will connect here)."
-echo "By Azimeeeeee"
+# === Setup systemd service ===
+echo "🧩 Setting up systemd service..."
+cat > /etc/systemd/system/wings.service <<'EOF'
+[Unit]
+Description=Pterodactyl Wings Daemon
+After=docker.service
+Requires=docker.service
+
+[Service]
+User=root
+WorkingDirectory=/etc/pterodactyl
+LimitNOFILE=4096
+ExecStart=/etc/pterodactyl/wings
+Restart=on-failure
+StartLimitInterval=180
+StartLimitBurst=30
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# === Enable & start Wings ===
+systemctl daemon-reload
+systemctl enable wings
+systemctl start wings
+
+# === Done ===
+echo ""
+echo "✅ Wings installation complete!"
+echo "🧠 To edit config: nano /etc/pterodactyl/config.yml"
+echo "🔁 Restart Wings with: systemctl restart wings"
+echo "🔍 Check status with: systemctl status wings --no-pager"
