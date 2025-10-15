@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# URLs
+CLOUDPANEL_URL="https://installer.cloudpanel.io/ce/v1/install.sh"
+
+# Function to check OS
+check_os() {
+  if ! grep -qi "ubuntu" /etc/os-release; then
+    echo "❌ Only Ubuntu is supported in this script."
+    exit 1
+  fi
+}
+
+# Function to install prerequisites
+install_prerequisites() {
+  echo "⚙️ Updating packages..."
+  apt-get update -y
+  apt-get install -y curl sudo gnupg lsb-release software-properties-common
+}
+
+# Function to run CloudPanel installer non-interactively
+install_cloudpanel() {
+  echo "🚀 Installing CloudPanel..."
+  bash <(curl -fsSL "$CLOUDPANEL_URL") --auto
+}
+
+# Main
+main() {
+  check_os
+  install_prerequisites
+  install_cloudpanel
+  echo "✅ CloudPanel installation complete!"
+  echo "You can access it on port 8443 (if exposed)."
+}
+
+main
