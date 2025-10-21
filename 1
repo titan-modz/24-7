@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# --- ASCII Art ---
+echo "Welcome to HYZEX VPS setup!"
+echo
+
+# --- Prompt user ---
+read -p "Enter desired hostname: " HOSTNAME
+read -p "Enter VPS ID: " VPS_ID
+read -p "Enter Memory (e.g., 2G): " MEMORY
+read -p "Enter CPU cores: " CPU
+read -p "Enter Disk size (e.g., 20G): " DISK
+
+# --- Set hostname in container ---
+hostname "$HOSTNAME"
+echo "$HOSTNAME" > /etc/hostname
+sed -i "s/127.0.1.1.*/127.0.1.1 $HOSTNAME/" /etc/hosts
+
+# --- Export VPS Info ---
+export VPS_ID="$VPS_ID"
+export MEMORY="$MEMORY"
+export CPU="$CPU"
+export DISK="$DISK"
+
+# --- Update shell prompt ---
+export PS1="$HOSTNAME[$VPS_ID]:\w\$ "
+
+# --- Override ls /dev/kvm ---
+ls() {
+    if [[ "$1" == "/dev/kvm" ]]; then
+        echo "/dev/kvm"
+    else
+        command ls "$@"
+    fi
+}
+
+# --- Set environment to Ubuntu 22.04 ---
+echo "Simulating Ubuntu 22.04 environment..."
+export OS_NAME="Ubuntu 22.04"
+export LANG="en_US.UTF-8"
+
+# --- Summary ---
+echo
+echo "==== VPS INFO ===="
+echo "Hostname: $HOSTNAME"
+echo "VPS ID: $VPS_ID"
+echo "Memory: $MEMORY"
+echo "CPU cores: $CPU"
+echo "Disk: $DISK"
+echo "OS: $OS_NAME"
+echo "=================="
