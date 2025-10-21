@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# ==============================
-#   HVM - Hyzex Virtual Machine
-# ==============================
+# =========================================
+#     HVM - Hyzex Virtual Machine (Auto)
+# =========================================
 
-# --- ASCII Art Banner ---
+# --- ASCII Banner ---
 clear
 echo " _    _ __      __ __  __ "
 echo "| |  | |\ \    / /|  \/  |"
@@ -16,12 +16,13 @@ echo "     HYZEX VIRTUAL MACHINE"
 echo "----------------------------------"
 echo
 
-# --- VPS Configuration ---
-read -p "Enter hostname: " HOSTNAME
-read -p "Enter VPS ID: " VPS_ID
-read -p "Enter Memory (e.g. 2GB): " MEMORY
-read -p "Enter CPU cores: " CPU
-read -p "Enter Disk size (e.g. 20GB): " DISK
+# --- Fixed VPS Configuration ---
+HOSTNAME="hyzxfree"
+VPS_ID="HVM-FREE-001"
+MEMORY="2GB"
+CPU="2 cores"
+DISK="20GB"
+OS_NAME="Ubuntu 22.04 LTS"
 
 # --- Set Hostname ---
 hostname "$HOSTNAME" 2>/dev/null
@@ -29,14 +30,15 @@ echo "$HOSTNAME" > /etc/hostname
 sed -i "s/127.0.1.1.*/127.0.1.1 $HOSTNAME/" /etc/hosts
 
 # --- Environment Variables ---
+export HOSTNAME="$HOSTNAME"
 export VPS_ID="$VPS_ID"
 export MEMORY="$MEMORY"
 export CPU="$CPU"
 export DISK="$DISK"
 export LANG="en_US.UTF-8"
-export OS_NAME="Ubuntu 22.04 LTS"
+export OS_NAME="$OS_NAME"
 
-# --- Fake /dev/kvm output ---
+# --- Override ls for /dev/kvm ---
 ls() {
     if [[ "$1" == "/dev/kvm" ]]; then
         echo "/dev/kvm"
@@ -45,17 +47,17 @@ ls() {
     fi
 }
 
-# --- Shell Prompt ---
+# --- Custom Prompt ---
 export PS1="root@$HOSTNAME[$VPS_ID]:\w# "
 
-# --- Display VPS Info ---
+# --- Boot Info ---
 clear
 echo "----------------------------------"
-echo " HVM VPS STARTED SUCCESSFULLY ✅"
+echo " HVM VPS BOOTED SUCCESSFULLY ✅"
 echo "----------------------------------"
 echo "Hostname : $HOSTNAME"
 echo "VPS ID   : $VPS_ID"
-echo "CPU      : $CPU cores"
+echo "CPU      : $CPU"
 echo "Memory   : $MEMORY"
 echo "Disk     : $DISK"
 echo "OS       : $OS_NAME"
@@ -64,5 +66,5 @@ echo "Type 'exit' to power off the VPS."
 echo "----------------------------------"
 echo
 
-# --- Launch interactive shell ---
+# --- Launch interactive terminal ---
 bash
