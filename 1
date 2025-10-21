@@ -1,31 +1,42 @@
 #!/bin/bash
 
-# --- ASCII Art ---
-echo "Welcome to HYZEX VPS setup!"
+# ==============================
+#   HVM - Hyzex Virtual Machine
+# ==============================
+
+# --- ASCII Art Banner ---
+clear
+echo " _    _ __      __ __  __ "
+echo "| |  | |\ \    / /|  \/  |"
+echo "| |__| | \ \  / / | \  / |"
+echo "|  __  |  \ \/ /  | |\/| |"
+echo "| |  | |   \  /   | |  | |"
+echo "|_|  |_|    \/    |_|  |_|"
+echo "     HYZEX VIRTUAL MACHINE"
+echo "----------------------------------"
 echo
 
-# --- Prompt user ---
-read -p "Enter desired hostname: " HOSTNAME
+# --- VPS Configuration ---
+read -p "Enter hostname: " HOSTNAME
 read -p "Enter VPS ID: " VPS_ID
-read -p "Enter Memory (e.g., 2G): " MEMORY
+read -p "Enter Memory (e.g. 2GB): " MEMORY
 read -p "Enter CPU cores: " CPU
-read -p "Enter Disk size (e.g., 20G): " DISK
+read -p "Enter Disk size (e.g. 20GB): " DISK
 
-# --- Set hostname in container ---
-hostname "$HOSTNAME"
+# --- Set Hostname ---
+hostname "$HOSTNAME" 2>/dev/null
 echo "$HOSTNAME" > /etc/hostname
 sed -i "s/127.0.1.1.*/127.0.1.1 $HOSTNAME/" /etc/hosts
 
-# --- Export VPS Info ---
+# --- Environment Variables ---
 export VPS_ID="$VPS_ID"
 export MEMORY="$MEMORY"
 export CPU="$CPU"
 export DISK="$DISK"
+export LANG="en_US.UTF-8"
+export OS_NAME="Ubuntu 22.04 LTS"
 
-# --- Update shell prompt ---
-export PS1="$HOSTNAME[$VPS_ID]:\w\$ "
-
-# --- Override ls /dev/kvm ---
+# --- Fake /dev/kvm output ---
 ls() {
     if [[ "$1" == "/dev/kvm" ]]; then
         echo "/dev/kvm"
@@ -34,18 +45,24 @@ ls() {
     fi
 }
 
-# --- Set environment to Ubuntu 22.04 ---
-echo "Simulating Ubuntu 22.04 environment..."
-export OS_NAME="Ubuntu 22.04"
-export LANG="en_US.UTF-8"
+# --- Shell Prompt ---
+export PS1="root@$HOSTNAME[$VPS_ID]:\w# "
 
-# --- Summary ---
+# --- Display VPS Info ---
+clear
+echo "----------------------------------"
+echo " HVM VPS STARTED SUCCESSFULLY ✅"
+echo "----------------------------------"
+echo "Hostname : $HOSTNAME"
+echo "VPS ID   : $VPS_ID"
+echo "CPU      : $CPU cores"
+echo "Memory   : $MEMORY"
+echo "Disk     : $DISK"
+echo "OS       : $OS_NAME"
+echo "----------------------------------"
+echo "Type 'exit' to power off the VPS."
+echo "----------------------------------"
 echo
-echo "==== VPS INFO ===="
-echo "Hostname: $HOSTNAME"
-echo "VPS ID: $VPS_ID"
-echo "Memory: $MEMORY"
-echo "CPU cores: $CPU"
-echo "Disk: $DISK"
-echo "OS: $OS_NAME"
-echo "=================="
+
+# --- Launch interactive shell ---
+bash
