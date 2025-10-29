@@ -1,73 +1,32 @@
-import os
-import subprocess
+#!/bin/bash
 
-# Define constants
-GIT_REPO = "https://github.com/pterodactyl/panel.git"
-CLONE_DIR = "pterodactyl-panel"
-DOCKER_COMPOSE_YML = """
-version: '3'
-services:
-  panel:
-    image: ghcr.io/pterodactyl/panel:latest
-    container_name: pterodactyl_panel
-    restart: always
-    ports:
-      - "80:80"
-    volumes:
-      - ./panel:/app
-    environment:
-      - APP_ENV=production
-      - APP_URL=http://localhost
-      - DB_HOST=mariadb
-      - DB_PORT=3306
-      - DB_DATABASE=panel
-      - DB_USERNAME=pterodactyl
-      - DB_PASSWORD=secret
+# ==============================================
+# Docker Compose Installer for DOM Cloud VPS
+# No sudo / No apt required
+# ==============================================
 
-  mariadb:
-    image: mariadb:10.5
-    container_name: pterodactyl_mariadb
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD=root
-      MYSQL_DATABASE=panel
-      MYSQL_USER=pterodactyl
-      MYSQL_PASSWORD=secret
-    volumes:
-      - ./mysql:/var/lib/mysql
-"""
+# Choose Docker Compose version
+COMPOSE_VERSION="2.27.0"
 
-def run(cmd: str):
-    print(f"Running: {cmd}")
-    subprocess.run(cmd, shell=True, check=True)
+# Create a local bin directory if it doesn't exist
+mkdir -p $HOME/bin
 
-# Step 1: Install dependencies (user must manually install Docker)
-print("Ensure Docker and Docker Compose are installed.")
+# Download the docker-compose binary
+echo "⬇️ Downloading Docker Compose v$COMPOSE_VERSION ..."
+curl -SL "https://github.com/docker/compose/releases/download/v$COMPOSE_VERSION/docker-compose-linux-x86_64" -o $HOME/bin/docker-compose
 
-# Step 2: Clone repo
-if not os.path.exists(CLONE_DIR):
-    run(f"git clone {GIT_REPO} {CLONE_DIR}")
+# Make it executable
+chmod +x $HOME/bin/docker-compose
 
-os.chdir(CLONE_DIR)
+# Add it to your PATH if not already added
+if ! grep -q "$HOME/bin" ~/.bashrc; then
+  echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+fi
 
-# Step 3: Write docker-compose.yml
-with open("docker-compose.yml", "w") as f:
-    f.write(DOCKER_COMPOSE_YML)
+# Apply new PATH immediately
+export PATH=$HOME/bin:$PATH
 
-# Step 4: Setup environment file
-if not os.path.exists(".env"):
-    run("cp .env.example .env")
-    run("docker run --rm -v $PWD:/app -w /app composer install --no-dev --optimize-autoloader")
-    run("docker-compose run --rm panel php artisan key:generate --force")
-    run("docker-compose run --rm panel php artisan migrate --seed --force")
-
-# Step 5: Start containers
-run("docker-compose up -d")
-
-# Step 6: Create admin user
-print("Now creating the admin user...")
-run("docker-compose exec panel php artisan p:user:make")
-
-print("\n✅ Pterodactyl Panel setup complete.")
-print("Access the panel at: http://localhost")
-print("Made By Azimeee")
+# Verify installation
+echo
+echo "✅ Docker Compose installed successfully!"
+docker-compose version
