@@ -1,32 +1,40 @@
 #!/bin/bash
 
-# ==============================================
-# Docker Compose Installer for DOM Cloud VPS
-# No sudo / No apt required
-# ==============================================
+# ====================================================
+# Docker Compose (rootless install for DOM Cloud)
+# Works on ARM64 or x86_64 — No sudo, no apt
+# ====================================================
 
-# Choose Docker Compose version
 COMPOSE_VERSION="2.27.0"
 
-# Create a local bin directory if it doesn't exist
-mkdir -p $HOME/bin
-
-# Download the docker-compose binary
-echo "⬇️ Downloading Docker Compose v$COMPOSE_VERSION ..."
-curl -SL "https://github.com/docker/compose/releases/download/v$COMPOSE_VERSION/docker-compose-linux-x86_64" -o $HOME/bin/docker-compose
-
-# Make it executable
-chmod +x $HOME/bin/docker-compose
-
-# Add it to your PATH if not already added
-if ! grep -q "$HOME/bin" ~/.bashrc; then
-  echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+# Detect architecture
+ARCH=$(uname -m)
+if [ "$ARCH" = "x86_64" ]; then
+    BINARY_URL="https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64"
+elif [ "$ARCH" = "aarch64" ]; then
+    BINARY_URL="https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-aarch64"
+else
+    echo "❌ Unsupported architecture: $ARCH"
+    exit 1
 fi
 
-# Apply new PATH immediately
-export PATH=$HOME/bin:$PATH
+# Create bin folder
+mkdir -p $HOME/bin
 
-# Verify installation
+# Download correct binary
+echo "⬇️ Downloading Docker Compose v${COMPOSE_VERSION} for $ARCH ..."
+curl -L "$BINARY_URL" -o $HOME/bin/docker-compose
+
+# Make executable
+chmod +x $HOME/bin/docker-compose
+
+# Add to PATH if not added yet
+if ! echo "$PATH" | grep -q "$HOME/bin"; then
+  echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+  export PATH=$HOME/bin:$PATH
+fi
+
+# Test
 echo
 echo "✅ Docker Compose installed successfully!"
-docker-compose version
+$HOME/bin/docker-compose version || echo "⚠️ Run 'source ~/.bashrc' and try again."
